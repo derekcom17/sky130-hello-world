@@ -1,8 +1,4 @@
 # sky130-hello-world
-[![Actions Status](https://github.com/sgherbst/sky130-hello-world/workflows/Regression/badge.svg)](https://github.com/sgherbst/sky130-hello-world/actions)
-[![License:Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0) [![Join the chat at https://gitter.im/sgherbst/sky130-hello-world](https://badges.gitter.im/sgherbst/sky130-hello-world.svg)](https://gitter.im/sgherbst/sky130-hello-world?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-This repo contains a minimal example of LVS, DRC, PEX, and SPICE simulation in SKY130.  It has a self-checking regression that runs on a GitHub Actions Linux host, so the intent is that one should be able to follow along with the steps in ``.github/workflows/regression.yml``, ``install.sh``, and ``regress.sh`` to fully reproduce the functionality shown here.
 
 The example is based around the minimum-size inverter from the SKY130 PDK.  DRC is run on the GDS for that inverter, and then it is extracted for LVS and PEX.  On the LVS front, the extracted SPICE netlist is compared to the netlist given in the PDK using ``netgen``.  On the PEX front, ``ngspice`` is used to run a transient simulation of the inverter with parasitic capacitances included.  The regression tests also include some tests to make sure that DRC and LVS errors can in fact be detected, using the intentionally broken file ``inv1_bad.gds``.
 
@@ -16,79 +12,77 @@ Certain dependencies need to be installed before moving on to the SKY130-specifi
 sudo apt-get install m4 tcsh csh libx11-dev tcl-dev tk-dev libcairo2-dev libncurses-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev ngspice
 ```
 
+### MAGIC VLSI Layout
+Magic is a dependency to install `open_pdks`. 
+
+Installation instructions: http://opencircuitdesign.com/magic/
+
+Source found here: https://github.com/RTimothyEdwards/magic
+
+### PDK
+Next, The sky130 PDK must be installed.
+
+This PDK is installed via `open_pdks`.
+
+Installation instructions: http://opencircuitdesign.com/open_pdks/
+
+Source found here: https://github.com/RTimothyEdwards/open_pdks
+
 ## Installing tools
 
-This script walks through the installation of ``magic``, ``netgen``, ``skywater-pdk``, and ``open_pdks``.
+Running `make install-tools` installs the following tools locally: ``magic``, ``netgen``, ``ngspice``, ``xschem``.
 
-```shell
-# create directory to hold open-source PDKS
-mkdir PDKS
+If the PDK install location was manually set, update the `PDKSPATH` and/or `PDKNAME` at the top of the Makefile before installing.
 
-# install magic
-git clone https://github.com/RTimothyEdwards/magic.git
-cd magic
-git checkout magic-8.3
-./configure
-make
-sudo make install
-cd ..
+## Launching tools
+Because the tools are not added to the shell path, Make targets were added as shourtcuts to launch them:
 
-# install netgen
-git clone https://github.com/RTimothyEdwards/netgen.git
-cd netgen
-git checkout netgen-1.5
-./configure
-make
-sudo make install
-cd ..
+`make launch-xschem`
 
-# install skywater-pdk
-git clone https://github.com/google/skywater-pdk
-cd skywater-pdk
-git submodule init libraries/sky130_fd_pr/latest
-git submodule update
-cd ..
+`make launch-ngspice`
 
-# install open_pdks
-git clone https://github.com/RTimothyEdwards/open_pdks.git
-cd open_pdks
-./configure --with-sky130-source=`realpath ../skywater-pdk` --with-sky130-local-path=`realpath ../PDKS`
-make
-make install
-cd ..
-```
+`make launch-magic`
 
-In addition, the ``PDKPATH`` environment variable should be set to the absoute path of ``PDKS/sky130A``, e.g.
-```
-export PDKPATH=`realpath PDKS/sky130A`
-```
+`make launch-netgen`
 
-For simulations in ngspice, the regression uses the ``SKYWATER`` environment variable, set to the absolute path of the skywater repository ``skywater-pdk``, e.g.
-```
-export SKYWATER=`realpath skywater-pdk`
-```
 
-## Running magic scripts
+The following syntax is used to pass additional arguments into the programs:
 
-``magic`` can run TCL scripts (DRC, extraction, etc.) in a non-interactive fashion using the following command:
+`make launch-<TOOL> args=<ADDITIONAL_ARGS>`
 
-```shell
-magic -noconsole -dnull script.tcl
-```
-
-Make sure that your scripts have ``quit`` at the end, to avoid ending up at an interactive prompt!
+For example: `make launch-ngspice args=--version` will launch NGSPICE, print the version, and exit.
 
 ## Running DRC
 
-The following ``magic`` TCL script reads in a GDS and counts up the number of DRC violations.  For some reason, the final line says that there are zero DRC errors, even if previous lines show errors.  Run this script using the ``magic`` command from the previous section.
+Launch Magic, and enter the following commands into the Magic console to count up the number of DRC violations.  For some reason, the final line says that there are zero DRC errors, even if previous lines show errors.
 
-```tcl
-gds read path_to_gds_file
-load name_of_top_cell
-drc catchup
-drc count
-quit
 ```
+% gds read inv1.gds
+% load sky130_fd_sc_hd__inv_1
+% drc catchup
+% drc count
+```
+
+To confirm the DRC check, you may replace the gds file in the first line with `inv1_bad.gds`. This file is expected to have DRC errors.
+
+## Running PEX
+
+Launch Magic, and enter the following commands into the Magic console to generate a netlist of the example cell with Parasitic Extraction. 
+
+```
+% gds read inv1.gds
+% load sky130_fd_sc_hd__inv_1
+% extract all
+% select top cell
+% port makeall
+% ext2spice lvs
+% ext2spice cthresh 0.01
+% ext2spice rthresh 1
+% ext2spice subcircuit on
+% ext2spice -o pex_inv1.spice
+```
+
+The output of these commands will be `pex_inv1.spice`
 
 ## Running LVS
 
@@ -103,27 +97,6 @@ ext2spice subcircuits off
 ext2spice -o lvs_output_file
 quit
 ```
-
-## Running PEX
-
-The following ``magic`` TCL script reads in a GDS and extracts it to an netlist for SPICE simulation.
-
-```tcl
-gds read path_to_gds_file
-load name_of_top_cell
-extract all
-select top cell
-port makeall
-ext2spice lvs
-ext2spice cthresh 0.01
-ext2spice rthresh 0.01
-ext2spice subcircuit on
-ext2spice ngspice
-ext2spice pex_output_file
-quit
-```
-
-## Running LVS
 
 LVS can be run to compare the design netlist with the extracted netlist using ``netgen``:
 
@@ -152,3 +125,4 @@ You'll probably need to make that an absolute path unless ``skywater-pdk`` happe
 * Open Circuit Design Tools
   * https://github.com/RTimothyEdwards/magic
   * https://github.com/RTimothyEdwards/netgen
+
