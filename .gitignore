@@ -5,3 +5,4 @@ pex*.spice
 *.out
 *.log
 tools/
+pdk

@@ -1,0 +1,30 @@
+**.subckt my_nmos_test G1v8 D1v8 B
+
+Vd2 D1v8 net3 0
+
+** NMOS instance
+XM2 net3 G1v8 S B sky130_fd_pr__nfet_01v8 L=0.15 W=1 nf=1 ad='int((nf+1)/2) * W/nf * 0.29' as='int((nf+2)/2) * W/nf * 0.29'
++ pd='2*int((nf+1)/2) * (W/nf + 0.29)' ps='2*int((nf+2)/2) * (W/nf + 0.29)' nrd='0.29 / W' nrs='0.29 / W'
++ sa=0 sb=0 sd=0 mult=1 m=1
+
+** Gate, source, body, drain voltages
+vg G1v8 0 1.8
+vs s 0 0
+vd D1v8 0 1.8
+vb b 0 0
+
+.option savecurrents
+
+.control
+save all
+dc vd 0 1.8 0.01 vg 0 1.8 0.2
+plot all.vd2#branch vs D1v8
+op
+write test_my_nmos.raw
+.endc
+
+** import opencircuitdesign pdks (this is where "sky130_fd_pr__nfet_01v8" is found)
+.lib ./pdk/libs.tech/ngspice/sky130.lib.spice tt
+
+.save I(Vd2)
+.end

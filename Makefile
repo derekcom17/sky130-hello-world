@@ -2,6 +2,7 @@
 # CONFIGURE THESE:
 PDKSPATH=/usr/loca/share/pdk
 
+
 PDKNAME=sky130A
 
 NGSPICEREPO=https://git.code.sf.net/p/ngspice/ngspice
@@ -96,6 +97,7 @@ endif
 .PHONY: install-tools
 .DEFAULT_GOAL:=
 install-tools: $(NGSPICE) $(XSCHEM) $(MAGIC) $(NETGEN)
+	ln -s ${PDKSPATH}/${PDKNAME} pdk
 
 .PHONY: clean
 clean:
