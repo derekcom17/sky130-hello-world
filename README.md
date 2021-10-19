@@ -89,19 +89,21 @@ The output of these commands will be `pex_inv1.spice`
 The following ``magic`` TCL script reads in a GDS and extracts it to an LVS-ready netlist.
 
 ```tcl
-gds read path_to_gds_file
-load name_of_top_cell
-extract all
-ext2spice lvs
-ext2spice subcircuits off
-ext2spice -o lvs_output_file
+% gds read inv1.gds
+% load sky130_fd_sc_hd__inv_1
+% extract all
+% ext2spice lvs
+% ext2spice subcircuits off
+% ext2spice -o lvs_inv1.spice
 quit
 ```
+The output of these commands will be `lvs_inv1.spice`
+
 
 LVS can be run to compare the design netlist with the extracted netlist using ``netgen``:
 
 ```shell
-netgen -batch lvs "design_netlist design_top_cell" "ext_netlist ext_top_cell" $PDKPATH/libs.tech/netgen/sky130A_setup.tcl
+make launch-netgen args=-batch\ lvs\ "inv1.spice\ sky130_fd_sc_hd__inv_1"\ "lvs_inv1.spice\ sky130_fd_sc_hd__inv_1"\ <PDKPATH>/libs.tech/netgen/sky130A_setup.tcl
 ```
 
 ## Running SPICE simulations
