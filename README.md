@@ -106,15 +106,12 @@ LVS can be run to compare the design netlist with the extracted netlist using ``
 make launch-netgen args=-batch\ lvs\ "inv1.spice\ sky130_fd_sc_hd__inv_1"\ "lvs_inv1.spice\ sky130_fd_sc_hd__inv_1"\ <PDKPATH>/libs.tech/netgen/sky130A_setup.tcl
 ```
 
-## Running SPICE simulations
+## Running SPICE simulations with NGSPICE
 
-SPICE simulations can be run without special options (e.g., ``ngspice myfile.spice``), but the following line should be placed near the top of the input file.
-
-```spice
-.lib "skywater-pdk/libraries/sky130_fd_pr/latest/models/sky130.lib.spice" tt
+The example simulation can be run with this command:
 ```
-
-You'll probably need to make that an absolute path unless ``skywater-pdk`` happens to be in your current direction.  Also, remember that for ngspice, the very first line of the input file must be a comment!
+make launch-ngspice args=./my_nmos_test.spice
+```
 
 ## Acknowledgements
 * SKY130 inverter example with a video
