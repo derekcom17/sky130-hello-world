@@ -113,6 +113,28 @@ The example simulation can be run with this command:
 make launch-ngspice args=./my_nmos_test.spice
 ```
 
+## Open the example schematics with XSCHEM
+
+When launching XSCHEM without argumenst (`make launch-xschem`), it will open the default SKY130 example schematic. 
+
+To open one of the example sim, select one of the yellow rectangles on the left (ex. "test_nmos") and press 'e' to enter the schematic.
+
+### Launch a simulation from XSCHEM
+
+XSCHEM can be integrated with NGSPICE to simulate the current schematic.
+
+To generate a SPICE netlist from the current schematic, press the "Netlist" button in the upper right of the XSCHEM window. The netlist will appear as `<SCHEMATIC_NAME>.spice` in the project directory.
+
+To launch the simulation with NGSPICE, press the "Simulate" button to the right of the "Netlist" button. However, NGSPICE is not added to PATH by default. The PATH to the simulator can be manually set from the XSCHEM gui. Under the "Simulation" dropdown, choose "Configure simulators and tools" In the top-center box replace the command with this one:
+
+```
+$terminal -e '`pwd`/tools/ngspice-install/bin/ngspice -i "$N" -a || sh'
+```
+
+Now, XSCHEM will use the ngspice we have installed for our project.
+
+(This can also be configured by editing `~/.xschem/simrc`)
+
 ## Acknowledgements
 * SKY130 inverter example with a video
   * https://github.com/mattvenn/magic-inverter
