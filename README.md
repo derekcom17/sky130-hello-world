@@ -8,6 +8,8 @@ The full details for this example can always be found by examining the source co
 
 Certain dependencies need to be installed before moving on to the SKY130-specific tools.
 
+For example, on Centos 7:
+
 ```shell
 sudo apt-get install m4 tcsh csh libx11-dev tcl-dev tk-dev libcairo2-dev libncurses-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev ngspice
 ```
