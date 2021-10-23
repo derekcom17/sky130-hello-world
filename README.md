@@ -54,6 +54,12 @@ The following syntax is used to pass additional arguments into the programs:
 
 For example: `make launch-ngspice args=--version` will launch NGSPICE, print the version, and exit.
 
+## Example Cell
+
+<p align="center"> <kbd> <img src="./inv1.svg" width="600"> </kbd> </p>
+ 
+<h4 align="center">Inverter from inv1.gds used in the following examples</h4>
+
 ## Running DRC
 
 Launch Magic, and enter the following commands into the Magic console to count up the number of DRC violations.  For some reason, the final line says that there are zero DRC errors, even if previous lines show errors.
