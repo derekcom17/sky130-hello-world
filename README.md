@@ -8,10 +8,10 @@ The full details for this example can always be found by examining the source co
 
 Certain dependencies need to be installed before moving on to the SKY130-specific tools.
 
-For example, on Centos 7:
+These examples were tested on Centos 7. To install dependencies run: 
 
 ```shell
-sudo apt-get install m4 tcsh csh libx11-dev tcl-dev tk-dev libcairo2-dev libncurses-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev ngspice
+sudo yum install Xorg-x11-server-xorg xorg-x11-xauth xorg-x11-apps libXaw-devel libXpm-devel readline-devel tcl tcl-devel tk tk-devel mesa-libGL-devel cairo-devel glut glut-devel patch Python3 centos-release-scl devtoolset-8
 ```
 
 ### MAGIC VLSI Layout
